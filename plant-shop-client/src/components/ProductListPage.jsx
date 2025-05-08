@@ -1,5 +1,13 @@
 import React, { useEffect, useState } from "react";
-import { Grid, Card, CardMedia, CardContent, Typography, CircularProgress, Box } from "@mui/material";
+import {
+  Grid,
+  Card,
+  CardMedia,
+  CardContent,
+  Typography,
+  CircularProgress,
+  Box
+} from "@mui/material";
 import axios from "axios";
 
 const ProductListPage = () => {
@@ -9,10 +17,18 @@ const ProductListPage = () => {
   useEffect(() => {
     axios.get("http://localhost:5001/api/products")
       .then((res) => {
-      setProducts(res.data);
-      setLoading(false);
+        setProducts(res.data);
+        setLoading(false);
       });
   }, []);
+
+  const getImagePath = (imageFileName) => {
+    try {
+      return new URL(`../assets/images/${imageFileName}`, import.meta.url).href;
+    } catch {
+      return "https://via.placeholder.com/180?text=Image+Missing";
+    }
+  };
 
   if (loading) return <Box sx={{ textAlign: "center", mt: 10 }}><CircularProgress /></Box>;
 
@@ -20,10 +36,18 @@ const ProductListPage = () => {
     <Box sx={{ p: 4 }}>
       <Typography variant="h4">All Products</Typography>
       <Grid container spacing={3}>
-        {products.map(p => (
+        {products.map((p) => (
           <Grid item xs={12} sm={6} md={4} key={p.id}>
             <Card>
-              <CardMedia component="img" height="180" image={p.imageUrl || "https://via.placeholder.com/180"} />
+             <CardMedia
+  component="img"
+  height="180"
+  image={`http://localhost:5001${p.imageUrl}`} // this is the uploaded image
+  onError={(e) => {
+    e.target.onerror = null;
+    e.target.src = "https://via.placeholder.com/180?text=No+Image";
+  }}
+/>
               <CardContent>
                 <Typography variant="h6">{p.name}</Typography>
                 <Typography color="text.secondary">{p.category}</Typography>

@@ -4,11 +4,33 @@ import dotenv from 'dotenv';
 import mysql from 'mysql2/promise';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
+import multer from 'multer';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
-dotenv.config(); // Load .env variables
+dotenv.config();
+
 const app = express();
 app.use(cors());
 app.use(express.json());
+
+// Handle __dirname with ES modules
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// Configure multer
+const storage = multer.diskStorage({
+  destination: path.join(__dirname, 'uploads'),
+  filename: (req, file, cb) => {
+    const ext = path.extname(file.originalname);
+    const filename = `${Date.now()}${ext}`;
+    cb(null, filename);
+  },
+});
+const upload = multer({ storage });
+
+// Serve images statically
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // MySQL Connection Pool
 const pool = await mysql.createPool({
@@ -40,9 +62,7 @@ const adminOnly = (req, res, next) => {
   next();
 };
 
-// 🚀 Routes
-
-// Register
+// User Registration
 app.post('/api/register', async (req, res) => {
   const { email, password } = req.body;
   const hashed = await bcrypt.hash(password, 10);
@@ -50,7 +70,7 @@ app.post('/api/register', async (req, res) => {
   res.sendStatus(201);
 });
 
-// Login
+// User Login
 app.post('/api/login', async (req, res) => {
   const { email, password } = req.body;
   const [users] = await pool.query('SELECT * FROM users WHERE email = ?', [email]);
@@ -66,11 +86,10 @@ app.post('/api/login', async (req, res) => {
     { expiresIn: '1d' }
   );
 
-  res.json({ token });
+  res.json({ token, role: users[0].role });
 });
 
-// 🔍 Products
-
+// Products
 app.get('/api/products', async (req, res) => {
   const [rows] = await pool.query('SELECT * FROM products');
   res.json(rows);
@@ -82,8 +101,14 @@ app.get('/api/products/:id', async (req, res) => {
   res.json(rows[0]);
 });
 
-app.post('/api/products', authenticate, adminOnly, async (req, res) => {
-  const { name, price, categoryId, imageUrl } = req.body;
+app.post('/api/products', authenticate, adminOnly, upload.single('image'), async (req, res) => {
+  const { name, price, categoryId } = req.body;
+
+  if (!req.file) {
+    return res.status(400).send("Image upload required");
+  }
+
+  const imageUrl = `/uploads/${req.file.filename}`;
   await pool.query(
     'INSERT INTO products (name, price, categoryId, imageUrl) VALUES (?, ?, ?, ?)',
     [name, price, categoryId, imageUrl]
@@ -105,8 +130,7 @@ app.delete('/api/products/:id', authenticate, adminOnly, async (req, res) => {
   res.sendStatus(204);
 });
 
-// 📦 Categories
-
+// Categories
 app.get('/api/categories', authenticate, async (req, res) => {
   const [rows] = await pool.query('SELECT * FROM categories');
   res.json(rows);

@@ -25,7 +25,7 @@ export default function ProductAdmin() {
   const [name, setName] = useState("");
   const [price, setPrice] = useState("");
   const [categoryId, setCategoryId] = useState("");
-  const [imageUrl, setImageUrl] = useState("");
+  const [imageFile, setImageFile] = useState(null);
   const [error, setError] = useState("");
 
   const token = localStorage.getItem("token");
@@ -53,29 +53,29 @@ export default function ProductAdmin() {
 
   const handleAddProduct = async () => {
     setError("");
-    if (!name || !price || !categoryId) {
-      setError("Please fill in all fields.");
+    if (!name || !price || !categoryId || !imageFile) {
+      setError("Please fill in all fields and upload an image.");
       return;
     }
 
     try {
-      await axios.post(
-        "http://localhost:5001/api/products",
-        {
-          name,
-          price: parseFloat(price),
-          categoryId: parseInt(categoryId),
-          imageUrl
+      const formData = new FormData();
+      formData.append("name", name);
+      formData.append("price", price);
+      formData.append("categoryId", categoryId);
+      formData.append("image", imageFile);
+
+      await axios.post("http://localhost:5001/api/products", formData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "multipart/form-data",
         },
-        {
-          headers: { Authorization: `Bearer ${token}` }
-        }
-      );
+      });
 
       setName("");
       setPrice("");
       setCategoryId("");
-      setImageUrl("");
+      setImageFile(null);
       fetchProducts();
     } catch (err) {
       console.error("Add product error:", err);
@@ -142,12 +142,15 @@ export default function ProductAdmin() {
           </FormControl>
         </Grid>
         <Grid item xs={12} sm={3}>
-          <TextField
-            fullWidth
-            label="Image URL"
-            value={imageUrl}
-            onChange={(e) => setImageUrl(e.target.value)}
-          />
+          <Button variant="contained" component="label" fullWidth>
+            Upload Image
+            <input
+              type="file"
+              hidden
+              accept="image/*"
+              onChange={(e) => setImageFile(e.target.files[0])}
+            />
+          </Button>
         </Grid>
         <Grid item xs={12} sm={1}>
           <Button
