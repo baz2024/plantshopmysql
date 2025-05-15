@@ -7,13 +7,13 @@ import { useAuth } from "../context/AuthContext";
 export default function Signin() {
   const navigate = useNavigate();
   const { login } = useAuth();
-
+  const API_base_url = import.meta.env.REACT_APP_API_URL || "http://localhost:5001";
   const handleSubmit = async (e) => {
     e.preventDefault();
     const data = new FormData(e.currentTarget);
 
     try {
-      const res = await axios.post("http://localhost:5001/api/login", {
+      const res = await axios.post('$(API_base_url)/api/login', {
         email: data.get("email"),
         password: data.get("password")
       });

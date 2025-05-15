@@ -5,11 +5,12 @@ import { useNavigate } from "react-router-dom";
 
 export default function Signup() {
   const navigate = useNavigate();
+    const API_base_url = import.meta.env.REACT_APP_API_URL || "http://localhost:5001";
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     const data = new FormData(e.currentTarget);
-    await axios.post("http://localhost:5001/api/register", {
+    await axios.post("$(API_base_url/api/register", {
       email: data.get("email"),
       password: data.get("password")
     });
