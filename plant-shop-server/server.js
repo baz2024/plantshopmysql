@@ -7,13 +7,13 @@ import bcrypt from 'bcryptjs';
 import multer from 'multer';
 import path from 'path';
 import { fileURLToPath } from 'url';
-
+import compression from 'compression';
 dotenv.config();
 
 const app = express();
 app.use(cors());
 app.use(express.json());
-
+app.use(compression());
 // Handle __dirname with ES modules
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
