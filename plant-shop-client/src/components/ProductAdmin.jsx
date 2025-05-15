@@ -65,7 +65,7 @@ export default function ProductAdmin() {
       formData.append("categoryId", categoryId);
       formData.append("image", imageFile);
 
-      await axios.post("http://localhost:5001/api/products", formData, {
+      await axios.post(`${API_base_url}/api/products`, formData, {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "multipart/form-data",

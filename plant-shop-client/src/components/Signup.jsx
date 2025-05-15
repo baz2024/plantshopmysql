@@ -10,7 +10,7 @@ export default function Signup() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     const data = new FormData(e.currentTarget);
-    await axios.post("$(API_base_url/api/register", {
+    await axios.post(`${API_base_url}/api/register`, {
       email: data.get("email"),
       password: data.get("password")
     });

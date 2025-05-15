@@ -7,10 +7,10 @@ export default function AdminCategories() {
   const [categories, setCategories] = useState([]);
   const [name, setName] = useState("");
   const [value, setValue] = useState("");
-
+  const API_base_url = import.meta.env.REACT_APP_API_URL || "http://localhost:5001";
   const fetchCategories = async () => {
     const token = localStorage.getItem("token");
-    const res = await axios.get("http://localhost:5001/api/categories", {
+    const res = await axios.get(`${API_base_url}/api/categories`, {
       headers: { Authorization: `Bearer ${token}` }
     });
     setCategories(res.data);
@@ -18,7 +18,7 @@ export default function AdminCategories() {
 
   const addCategory = async () => {
     const token = localStorage.getItem("token");
-    await axios.post("http://localhost:5001/api/categories", { name, value }, {
+    await axios.post(`${API_base_url}/api/categories`, { name, value }, {
       headers: { Authorization: `Bearer ${token}` }
     });
     setName(""); setValue(""); fetchCategories();
@@ -26,7 +26,7 @@ export default function AdminCategories() {
 
   const deleteCategory = async (id) => {
     const token = localStorage.getItem("token");
-    await axios.delete(`http://localhost:5001/api/categories/${id}`, {
+    await axios.delete(`${API_base_url}/api/categories/${id}`, {
       headers: { Authorization: `Bearer ${token}` }
     });
     fetchCategories();

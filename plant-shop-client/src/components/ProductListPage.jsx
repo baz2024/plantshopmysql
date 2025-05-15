@@ -13,9 +13,10 @@ import axios from "axios";
 const ProductListPage = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const API_base_url = import.meta.env.REACT_APP_API_URL || "http://localhost:5001";
 
   useEffect(() => {
-    axios.get("http://localhost:5001/api/products")
+    axios.get(`${API_base_url}/api/products`)
       .then((res) => {
         setProducts(res.data);
         setLoading(false);
@@ -42,7 +43,7 @@ const ProductListPage = () => {
              <CardMedia
   component="img"
   height="180"
-  image={`http://localhost:5001${p.imageUrl}`} // this is the uploaded image
+  image={`${API_base_url}${p.imageUrl}`} // this is the uploaded image
   onError={(e) => {
     e.target.onerror = null;
     e.target.src = "https://via.placeholder.com/180?text=No+Image";

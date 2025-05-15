@@ -15,9 +15,16 @@ const ProductDetails = () => {
   const { id } = useParams(); // get product ID from route
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
+  const API_base_url = import.meta.env.REACT_APP_API_URL || "http://localhost:5001";
 
+ /*
+const res = await axios.post(`${API_base_url}/api/login`, {
+  email: data.get("email"),
+  password: data.get("password")
+});
+*/
   useEffect(() => {
-    axios.get(`http://localhost:5001/api/products/${id}`)
+    axios.get(`${API_base_url}/api/products/${id}`)
       .then((res) => {
         setProduct(res.data);
         setLoading(false);
